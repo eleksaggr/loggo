@@ -1,41 +1,65 @@
 package loggo
 
 import (
-	"fmt"
-  "image/color"
-	"os"
+	"io"
+	"log"
+	"time"
 )
 
-type Logger struct {
-	debugMode bool
-	output    *os.File
+type Level uint
+
+const (
+	INFO Level = iota
+	DEBUG
+	WARNING
+	ERROR
+)
+
+var levelNames map[Level]string = map[Level]string {
+	INFO: "INFO",
+	DEBUG: "DEBUG",
+	WARNING: "WARN",
+	ERROR: "ERROR",
 }
 
-func NewLogger(output *os.File, debugMode bool) *Logger {
-	logger := new(Logger)
-
-	if output != nil {
-		logger.output = output
-	} else {
-		// Print a warning to the user
-		fmt.Println("[LOGGO] ---Falling back to Stderr---")
-		logger.output = os.Stderr
-	}
-	logger.debugMode = debugMode
-
-	return logger
+var levelColors map[Level]string = map[Level]string {
+	INFO: "\033[0m",
+	DEBUG: "\033[94m",
+	WARNING: "\033[93m",
+	ERROR: "\033[91m",
 }
 
-func (logger *Logger) Log(section, msg string) {
-	fmt.Fprintf(logger.output, "[%s] %s\n", section, msg)
+type Log struct {
+	Logger *log.Logger
 }
 
-func (logger *Logger) Debug(section, msg string) {
-	if logger.debugMode == true {
-		logger.Log(section, msg)
-	}
+type Record struct {
+	Message string
+	Time time.Time
+	Level Level
 }
 
-func (logger *Logger) SetDebug(flag bool) {
-	logger.debugMode = flag
+func NewLog(out io.Writer) *Log {
+	return &Log{Logger : log.New(out, "", 0)}
+}
+
+func (l *Log) log(record *Record) {
+	time := record.Time.Format("15:04:05")
+	l.Logger.Printf("%s%s [%s] %s\n%s",levelColors[record.Level], time, levelNames[record.Level], record.Message, "\033[0m")
+}
+
+func (l *Log) Info(message string) {
+	l.log(&Record{Message: message, Time: time.Now(), Level: INFO})
+}
+
+func (l *Log) Debug(message string) {
+	l.log(&Record{Message: message, Time: time.Now(), Level: DEBUG})
+}
+
+func (l *Log) Warning(message string){
+	l.log(&Record{Message: message, Time: time.Now(), Level: WARNING})
+}
+
+func (l *Log) Error(message string){
+	l.log(&Record{Message: message, Time: time.Now(), Level: ERROR})
 }

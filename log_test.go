@@ -1,11 +1,26 @@
 package loggo
 
 import (
-	// "os"
+	"os"
 	"testing"
 )
 
-func TestLog(t *testing.T) {
-	l := NewLogger(nil, false)
-	l.Log("Test", "This is a test.")
+func TestInfo(t *testing.T) {
+	l := NewLog(os.Stdout)
+	l.Info("This is a test.")
+}
+
+func TestDebug(t *testing.T) {
+	l := NewLog(os.Stdout)
+	l.Debug("This is a debug message.")
+}
+
+func TestWarning(t *testing.T) {
+	l := NewLog(os.Stdout)
+	l.Warning("This is a Warning.")
+}
+
+func TestError(t *testing.T) {
+	l := NewLog(os.Stdout)
+	l.Error("This shouldnt have happened!")
 }
