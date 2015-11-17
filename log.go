@@ -45,7 +45,7 @@ func NewLog(out io.Writer) *Log {
 
 func (l *Log) log(record *Record) {
 	time := record.Time.Format("15:04:05")
-	l.Logger.Printf("%s%s [%s] %s\n%s",levelColors[record.Level], time, levelNames[record.Level], record.Message, "\033[0m")
+	l.Logger.Printf("%s%s [%s] %s%s",levelColors[record.Level], time, levelNames[record.Level], record.Message, "\033[0m")
 }
 
 func (l *Log) Info(message string) {
